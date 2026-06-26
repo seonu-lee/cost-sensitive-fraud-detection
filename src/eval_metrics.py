@@ -124,4 +124,16 @@ def reduce_mem_usage(df, verbose=True):
                 else:
                     df[col] = df[col].astype(np.int64)
             else:
-                if c_min
+                if c_min > np.finfo(np.float32).min and c_max < np.finfo(np.float32).max:
+                    df[col] = df[col].astype(np.float32)
+                else:
+                    df[col] = df[col].astype(np.float64)
+        else:
+            df[col] = df[col].astype('category')
+
+    end_mem = df.memory_usage(deep=True).sum() / 1024**2
+    if verbose:
+        print(f"메모리 사용량: {start_mem:.2f} MB → {end_mem:.2f} MB "
+              f"({100*(start_mem-end_mem)/start_mem:.1f}% 감소)")
+
+    return df
